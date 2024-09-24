@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Géolocalisation</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <div id="container">
+        <h1>Test de Géolocalisation</h1>
+        <div class="section">
+            <h2>Position actuelle</h2>
+            <p>Latitude: <span id="latitude"></span></p>
+            <p>Longitude: <span id="longitude"></span></p>
+            <p>Altitude: <span id="altitude"></span></p>
+            <p>Précision: <span id="precision"></span></p>
+            <p>Vitesse: <span id="speed"></span></p>
+            <p>Date: <span id="date"></span></p>
+        </div>
+        <div class="section">
+            <h2>Position en temps réel</h2>
+            <p>Latitude: <span id="latitude-watch"></span></p>
+            <p>Longitude: <span id="longitude-watch"></span></p>
+            <p>Altitude: <span id="altitude-watch"></span></p>
+            <p>Précision: <span id="precision-watch"></span></p>
+            <p>Vitesse: <span id="speed-watch"></span></p>
+            <p>Date: <span id="date-watch"></span></p>
+        </div>
+        <div class="footer">
+            <p>Veuillez autoriser la géolocalisation pour voir les résultats.</p>
+        </div>
+    </div>
+
+    <script>
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        function getCurrentPosition() {
+            if (navigator.geolocation) {
+                const options = {
+                    enableHighAccuracy: true, 
+                    timeout: 5000, 
+                    maximumAge: 0 
+                  };
+                
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('latitude').textContent = position.coords.latitude;
+                    document.getElementById('longitude').textContent = position.coords.longitude;
+                    document.getElementById('altitude').textContent = position.coords.altitude || 'N/A';
+                    document.getElementById('precision').textContent = position.coords.accuracy + ' mètres';
+                    document.getElementById('speed').textContent = position.coords.speed ? position.coords.speed + ' m/s' : 'Vitesse non disponible';
+                    document.getElementById('date').textContent = formatDate(position.timestamp);
+                }, function(error) {
+                    handleGeoError(error);
+                }, options);
+            } else {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+            }
+        }
+
+        function watchPosition() {
+            if (navigator.geolocation) {
+                const options = {
+                    enableHighAccuracy: true, 
+                    timeout: 5000, 
+                    maximumAge: 0 
+                };
+                
+                navigator.geolocation.watchPosition(function(position) {
+                    document.getElementById('latitude-watch').textContent = position.coords.latitude;
+                    document.getElementById('longitude-watch').textContent = position.coords.longitude;
+                    document.getElementById('altitude-watch').textContent = position.coords.altitude || 'N/A';
+                    document.getElementById('precision-watch').textContent = position.coords.accuracy + ' mètres';
+                    document.getElementById('speed-watch').textContent = position.coords.speed ? position.coords.speed + ' m/s' : 'Vitesse non disponible';
+                    document.getElementById('date-watch').textContent = formatDate(position.timestamp);
+                }, function(error) {
+                    handleGeoError(error);
+                }, options);
+            }
+        }
+
+        function handleGeoError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("L'utilisateur a refusé la demande de géolocalisation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Les informations de localisation ne sont pas disponibles.");
+                    break;
+                case error.TIMEOUT:
+                    alert("La requête de géolocalisation a expiré.");
+                    break;
+                default:
+                    alert("Une erreur inconnue est survenue.");
+                    break;
+            }
+        }
+
+        getCurrentPosition();
+        watchPosition();
+    </script>
+</body>
+</html>
+  
