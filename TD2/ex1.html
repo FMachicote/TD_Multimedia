@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte avec Géolocalisation</title>
+    
+    <!-- Lien vers le CSS de Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <!-- Lien vers le fichier CSS externe -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Carte centrée sur votre position</h1>
+    <div id="map"></div>
+
+    <!-- Lien vers le JavaScript de Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialisation de la carte avec une position par défaut
+        var map = L.map('map').setView([43.7, 7.26], 13);  // Coordonées par défaut sur Nice
+
+        // Ajout d'un fond de carte (OpenStreetMap)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/%7Bz%7D/%7By%7D/%7Bx%7D', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+}).addTo(map);
+
+        // Marqueur sur Nice (Centre-ville)
+        var niceMarker = L.marker([43.7000, 7.2500]).addTo(map)
+            .bindPopup("Centre-ville de Nice")
+            .openPopup();
+
+        // Demander la localisation de l'utilisateur
+        map.locate({setView: true, maxZoom: 16});
+
+        // Gestion de l'événement quand la localisation est trouvée
+        function onLocationFound(e) {
+            var radius = e.accuracy / 2;
+
+            // Ajouter un marqueur à la position de l'utilisateur
+            var userMarker = L.marker(e.latlng).addTo(map)
+                .bindPopup("Vous êtes ici, dans un rayon de " + radius + " mètres.").openPopup();
+
+            // Ajouter un cercle pour indiquer la précision de la localisation
+            L.circle(e.latlng, radius).addTo(map);
+        }
+
+        // En cas d'erreur lors de la récupération de la localisation
+        function onLocationError(e) {
+            alert(e.message);
+        }
+
+        // Écoute de l'événement 'locationfound' pour obtenir la position
+        map.on('locationfound', onLocationFound);
+
+        // Écoute de l'événement 'locationerror' pour gérer les erreurs de localisation
+        map.on('locationerror', onLocationError);
+    </script>
+</body>
+</html>
